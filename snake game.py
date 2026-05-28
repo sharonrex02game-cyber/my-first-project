@@ -10,7 +10,6 @@ DIRECTIONS = {
 	"down": (0, -MOVE_DISTANCE),
 	"left": (-MOVE_DISTANCE, 0),
 	"right": (MOVE_DISTANCE, 0)
-}
 
 snake = [[60, 0], [40, 0], [20, 0], [0, 0]]
 current_direction = "up"
@@ -24,6 +23,8 @@ pen = turtle.Turtle("square")
 pen.color("green")
 pen.penup()
 print("game started")
+
+test = 4
 
 
 food = turtle.Turtle()
