@@ -67,8 +67,8 @@ def right_paddle_down():
 window.listen()
 window.onkeypress(left_paddle_up, "w")
 window.onkeypress(left_paddle_down, "s")
-window.onkeypress(right_paddle_up, "u")
-window.onkeypress(right_paddle_down, "j")
+window.onkeypress(right_paddle_up, "8")
+window.onkeypress(right_paddle_down, "2")
 
 running = True
 

@@ -1,104 +1,148 @@
 import turtle
+import time
 import random
 
-SCREEN_WIDTH = 500
-SCREEN_HIGHT = 500
-MOVE_DISTANCE = 20
+# Global Variables
+delay = 0.1
+score = 0
+high_score = 0
+game_started = False
 
-DIRECTIONS = {
-	"up": (0, MOVE_DISTANCE),
-	"down": (0, -MOVE_DISTANCE),
-	"left": (-MOVE_DISTANCE, 0),
-	"right": (MOVE_DISTANCE, 0)
-
-snake = [[60, 0], [40, 0], [20, 0], [0, 0]]
-current_direction = "up"
-
+# Set up the screen
 window = turtle.Screen()
 window.title("Snake Game")
 window.bgcolor("black")
-window.setup(SCREEN_WIDTH, SCREEN_HIGHT)
-window.tracer(1, 100)
-pen = turtle.Turtle("square")
-pen.color("green")
-pen.penup()
-print("game started")
+window.setup(width=600, height=600)
+window.tracer(0)
 
-test = 4
-
+# --- GAME OBJECTS ---
+head = turtle.Turtle()
+head.speed(0)
+head.shape("square")
+head.color("green")
+head.penup()
+head.goto(0,0)
+head.direction = "stop"
+head.hideturtle() # Hide until game starts
 
 food = turtle.Turtle()
+food.speed(0)
 food.shape("circle")
-food.color("yellow")
+food.color("red")
 food.penup()
-food.shapesize(stretch_wid=0.5, stretch_len=0.5)
-print("food created")
+food.goto(0,100)
+food.hideturtle() # Hide until game starts
 
+segments = []
 
-def reposition_food():
-	x = random.randint(-SCREEN_WIDTH // 2 + 20, SCREEN_WIDTH // 2 - 20)
-	y = random.randint(-SCREEN_HIGHT // 2 + 20, SCREEN_HIGHT // 2 - 20)
-	food.goto(x, y)
+# Scoreboard / Text Pen
+pen = turtle.Turtle()
+pen.speed(0)
+pen.color("white")
+pen.penup()
+pen.hideturtle()
 
-reposition_food()
+# --- FUNCTIONS ---
+def start_game():
+    global game_started
+    if not game_started:
+        game_started = True
+        pen.clear()
+        head.showturtle()
+        food.showturtle()
 
-def draw_snake():
-	pen.clearstamps()
+def go_up():
+    if head.direction != "down": head.direction = "up"
 
-	for segment in snake:
-		pen.goto(segment[0], segment[1])
-		pen.stamp()
+def go_down():
+    if head.direction != "up": head.direction = "down"
 
-def change_direction(new_dir):
-	global current_direction
+def go_left():
+    if head.direction != "right": head.direction = "left"
 
-	opposites = {
-		"up": "down",
-		"down": "up",
-		"left": "right",
-		"right": "left"
-	}
+def go_right():
+    if head.direction != "left": head.direction = "right"
 
-	if new_dir != opposites.get(current_direction):
-		current_direction = new_dir
+def move():
+    if head.direction == "up":
+        head.sety(head.ycor() + 20)
+    if head.direction == "down":
+        head.sety(head.ycor() - 20)
+    if head.direction == "left":
+        head.setx(head.xcor() - 20)
+    if head.direction == "right":
+        head.setx(head.xcor() + 20)
 
+def reset_game():
+    global score, delay
+    time.sleep(1)
+    head.goto(0,0)
+    head.direction = "stop"
+    for segment in segments:
+        segment.goto(1000, 1000)
+    segments.clear()
+    score = 0
+    delay = 0.1
+    update_score()
+
+def update_score():
+    pen.clear()
+    pen.goto(0, 260)
+    pen.write(f"Score: {score}  High Score: {high_score}", align="center", font=("Courier", 24, "normal"))
+
+def show_menu():
+    pen.clear()
+    pen.goto(0, 50)
+    pen.write("SNAKE GAME", align="center", font=("Courier", 40, "bold"))
+    pen.goto(0, -20)
+    pen.write("Press 'Space' to Play", align="center", font=("Courier", 20, "normal"))
+    pen.goto(0, -60)
+    pen.write("W/A/S/D to Move", align="center", font=("Courier", 15, "italic"))
+
+# Keyboard bindings
 window.listen()
-window.onkeypress(lambda: change_direction("up"), "Up")
-window.onkeypress(lambda: change_direction("down"), "Down")
-window.onkeypress(lambda: change_direction("left"), "Left")
-window.onkeypress(lambda: change_direction("right"), "Right")
+window.onkeypress(start_game, "space")
+window.onkeypress(go_up, "w")
+window.onkeypress(go_down, "s")
+window.onkeypress(go_left, "a")
+window.onkeypress(go_right, "d")
 
-running = True
+# Show the menu initially
+show_menu()
 
-while running:
-	
-	try:
-		head_x, head_y = snake[-1]
-		dx, dy = DIRECTIONS[current_direction]
+# --- MAIN LOOP ---
+while True:
+    window.update()
 
-		new_head = [head_x + dx, head_y + dy]
+    if game_started:
+        # Check for border collision
+        if head.xcor()>290 or head.xcor()<-290 or head.ycor()>290 or head.ycor()<-290:
+            reset_game()
 
-		if abs(new_head[0]) > SCREEN_WIDTH // 2 or abs(new_head[1]) > SCREEN_HIGHT // 2:
-			snake = [[60, 0], [40, 0], [20, 0], [0, 0]]
-			current_direction = "up"
-			reposition_food()
-			continue
+        # Check for food collision
+        if head.distance(food) < 20:
+            food.goto(random.randint(-280, 280), random.randint(-280, 280))
+            new_segment = turtle.Turtle()
+            new_segment.speed(0)
+            new_segment.shape("square")
+            new_segment.color("lightgreen")
+            new_segment.penup()
+            segments.append(new_segment)
+            score += 10
+            if score > high_score: high_score = score
+            update_score()
 
-		if new_head in snake[:-1]:
-			snake = [[60, 0], [40, 0], [20, 0], [0, 0]]
-			current_direction = "up"
-			reposition_food()
-			continue
+        # Move segments
+        for index in range(len(segments)-1, 0, -1):
+            segments[index].goto(segments[index-1].xcor(), segments[index-1].ycor())
+        if len(segments) > 0:
+            segments[0].goto(head.xcor(), head.ycor())
 
-		snake.append(new_head)
+        move()
 
-		if (abs(new_head[0] - food.xcor()) < 20 and
-				abs(new_head[1] - food.ycor()) < 20):
-			reposition_food()
-		else:
-			snake.pop(0)
-			draw_snake()
+        # Check for body collision
+        for segment in segments:
+            if segment.distance(head) < 20:
+                reset_game()
 
-
-	except:
-		running = False
+        time.sleep(delay)
