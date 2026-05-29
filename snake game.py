@@ -139,7 +139,6 @@ while True:
             segments[0].goto(head.xcor(), head.ycor())
 
         move()
-
         for segment in segments:
             if segment.distance(head) < 20:
                 reset_game()
