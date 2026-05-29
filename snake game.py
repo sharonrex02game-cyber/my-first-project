@@ -2,7 +2,7 @@ import turtle
 import time
 import random
 
-# Global Variables
+# Variables
 delay = 0.1
 score = 0
 high_score = 0
@@ -15,7 +15,8 @@ window.bgcolor("black")
 window.setup(width=600, height=600)
 window.tracer(0)
 
-# --- GAME OBJECTS ---
+
+# snake
 head = turtle.Turtle()
 head.speed(0)
 head.shape("square")
@@ -25,6 +26,7 @@ head.goto(0,0)
 head.direction = "stop"
 head.hideturtle() # Hide until game starts
 
+#food
 food = turtle.Turtle()
 food.speed(0)
 food.shape("circle")
@@ -35,14 +37,13 @@ food.hideturtle() # Hide until game starts
 
 segments = []
 
-# Scoreboard / Text Pen
+# Scoreboard
 pen = turtle.Turtle()
 pen.speed(0)
 pen.color("white")
 pen.penup()
 pen.hideturtle()
 
-# --- FUNCTIONS ---
 def start_game():
     global game_started
     if not game_started:
@@ -99,7 +100,7 @@ def show_menu():
     pen.goto(0, -60)
     pen.write("W/A/S/D to Move", align="center", font=("Courier", 15, "italic"))
 
-# Keyboard bindings
+# Keyboard
 window.listen()
 window.onkeypress(start_game, "space")
 window.onkeypress(go_up, "w")
@@ -107,10 +108,10 @@ window.onkeypress(go_down, "s")
 window.onkeypress(go_left, "a")
 window.onkeypress(go_right, "d")
 
-# Show the menu initially
+# menu
 show_menu()
 
-# --- MAIN LOOP ---
+
 while True:
     window.update()
 
@@ -132,7 +133,6 @@ while True:
             if score > high_score: high_score = score
             update_score()
 
-        # Move segments
         for index in range(len(segments)-1, 0, -1):
             segments[index].goto(segments[index-1].xcor(), segments[index-1].ycor())
         if len(segments) > 0:
@@ -140,7 +140,6 @@ while True:
 
         move()
 
-        # Check for body collision
         for segment in segments:
             if segment.distance(head) < 20:
                 reset_game()
